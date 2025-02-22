@@ -3,6 +3,7 @@ import functools
 from typing import Any, ParamSpec, TypeVar
 
 from pyexc._constants import EXCEPTION_ATTR
+from pyexc._utils import get_exception_set
 
 __all__ = ["raises"]
 
@@ -24,14 +25,10 @@ def _raises_decorator(
     if not hasattr(callable, EXCEPTION_ATTR):
         setattr(callable, EXCEPTION_ATTR, set())
 
-    _get_exception_set(callable).update(exceptions)
+    get_exception_set(callable).update(exceptions)
 
     @functools.wraps(callable)
     def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         return callable(*args, **kwargs)
 
     return wrapper
-
-
-def _get_exception_set(callable: Callable[_P, _R]) -> set[type[BaseException]]:
-    return getattr(callable, EXCEPTION_ATTR, set())
